@@ -1,4 +1,4 @@
-package helpers
+package core
 
 import (
 	"bufio"
@@ -6,8 +6,8 @@ import (
 	"os"
 )
 
-func WhatProject() string {
-	fmt.Print("Enter the branch prefix (CPR/MK/OTS): ")
+func EnableDebugMode() string {
+	fmt.Print("Do you want to enable the debug mode? (y/n) ")
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
 	return input.Text()

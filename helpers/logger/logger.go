@@ -6,6 +6,12 @@ import (
 	"time"
 )
 
+const INFO string = "INFO"
+const DEBUG string = "DEBUG"
+const WARN string = "WARN"
+const ERROR string = "ERROR"
+const EXECUTION_FILE_NAME = "execution"
+
 func destroyLogFiles() {
 	os.Remove("logs/execution.log")
 	os.Remove("logs/output.log")
@@ -22,13 +28,12 @@ func Log(level string, content string, targetFile string) {
 		return
 	}
 	logContent := time.Now().Format("2006-01-02 15:04:05") + " | " + level + " | " + content
-	l, err := f.WriteString(logContent + "\n")
+	_, err = f.WriteString(logContent + "\n")
 	if err != nil {
 		fmt.Println(err)
 		f.Close()
 		return
 	}
-	fmt.Println(l, "log written successfully")
 	err = f.Close()
 	if err != nil {
 		fmt.Println(err)
