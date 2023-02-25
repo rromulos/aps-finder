@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/rromulos/aps-finder/helpers/logger"
+	"github.com/rromulos/aps-finder/helpers/report"
 )
 
 const APP_SETTING_PATTERN string = "AppSettingManager::get"
@@ -27,9 +28,11 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	fQtyError := 0
 	var a []string
 	filepath.WalkDir(targetFolder, func(s string, d fs.DirEntry, err error) error {
+
 		if err != nil {
 			return err
 		}
+
 		if filepath.Ext(d.Name()) == ext {
 			if !strings.Contains(s, "app/protected/vendor/") {
 				count++
@@ -41,8 +44,10 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 				a = append(a, s)
 			}
 		}
+
 		return nil
 	})
+
 	if fQtyWarning > 0 || fQtyError > 0 {
 		println("=====================================================================")
 		println("Finished, but needs attention. [", count, "] files were analyzed.")
@@ -90,17 +95,22 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 		cleanedString := removeFromPattern(APP_SETTING_PATTERN, s[left:idxFind+right])
 
 		for _, match := range r.FindStringSubmatch(cleanedString) {
-			match = removeUnnecessaryChars(match)
+			appSetting := removeUnnecessaryChars(match)
+
 			if len(match) == 0 {
 				qtyWarning++
 				logger.Log(logger.WARN, "Empty value found", logger.EXECUTION_FILE_NAME)
 				continue
 			}
-			checkReturn := checkContentContainsInvalidChars(match)
+
+			checkReturn := checkContentContainsInvalidChars(appSetting)
+
 			if !checkReturn {
+				report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
 				logger.Log(logger.WARN, "["+match+"] contains values ​​in variables that cannot be read", "execution")
 				qtyWarning++
 			} else {
+				report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
 				qtySuccess++
 			}
 		}
@@ -112,9 +122,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 func removeFromPattern(p, ms string) string {
 	_, a, ok := strings.Cut(ms, p)
+
 	if !ok {
 		return ""
 	}
+
 	return a
 }
 
@@ -123,13 +135,16 @@ func removeUnnecessaryChars(s string) string {
 	s2 := strings.Replace(s1, ")", "", -1)
 	s3 := strings.Replace(s2, "'", "", -1)
 	s4 := strings.Trim(s3, "\"")
+
 	return s4
 }
 
 func checkContentContainsInvalidChars(s string) bool {
 	r, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
+
 	if r.MatchString(s) {
 		return true
 	}
+
 	return false
 }
