@@ -12,7 +12,13 @@ import (
 func main() {
 	logger.InitLogs()
 	report.InitReports()
-	var prefix = core.EnableDebugMode()
+	prefix := ""
+	for {
+		prefix = core.EnableDebugMode()
+		if prefix == "y" || prefix == "n" {
+			break
+		}
+	}
 	start := time.Now()
 	core.PerformAnalysis("app", ".php", prefix)
 	elapsed := time.Since(start)
