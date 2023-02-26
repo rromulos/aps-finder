@@ -19,11 +19,13 @@ var qtyError = 0
 var qtyWarning = 0
 var qtySuccess = 0
 
+//Method that will start the analysis
 func PerformAnalysis(targetFolder, ext string, pVerboseMode string) {
 	verboseMode = pVerboseMode
 	findAllFilesByExtension(targetFolder, ext)
 }
 
+//Searches for all files with the PHP extension
 func findAllFilesByExtension(targetFolder, ext string) []string {
 	var count = 0
 	qtySuccess := 0
@@ -69,6 +71,7 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	return a
 }
 
+//Reads the given file looking for AppSettings
 func searchForAppSettingInFile(file string) (int, int, int) {
 
 	b, err := ioutil.ReadFile(file)
@@ -135,8 +138,10 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	return qtySuccess, qtyWarning, qtyError
 }
 
-func removeFromPattern(p, ms string) string {
-	_, a, ok := strings.Cut(ms, p)
+//Removes content before the given string
+//Return string
+func removeFromPattern(p, s string) string {
+	_, a, ok := strings.Cut(s, p)
 
 	if !ok {
 		return ""
@@ -145,6 +150,8 @@ func removeFromPattern(p, ms string) string {
 	return a
 }
 
+//Removes unnecessary characters
+//Return string
 func removeUnnecessaryChars(s string) string {
 	s1 := strings.Replace(s, "(", "", -1)
 	s2 := strings.Replace(s1, ")", "", -1)
@@ -154,6 +161,7 @@ func removeUnnecessaryChars(s string) string {
 	return s4
 }
 
+//Check if the string contains invalid characters
 func checkContentContainsInvalidChars(s string) bool {
 	r, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
 
@@ -164,6 +172,7 @@ func checkContentContainsInvalidChars(s string) bool {
 	return false
 }
 
+//Invokes the report in order to add the outputs
 func addContentToOutputReport(containsInvalidChars bool, match string, appSetting string) {
 	if !containsInvalidChars {
 		if !report.CheckAppSettingAlreadyExists(appSetting) {

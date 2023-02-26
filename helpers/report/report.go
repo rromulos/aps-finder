@@ -52,14 +52,10 @@ func CheckAppSettingAlreadyExists(appSetting string) bool {
 	s := string(data)
 
 	if strings.Contains(s, appSetting) {
-		// fmt.Println("Contem ", appSetting)
 		return true
 	} else {
 		return false
-		// fmt.Println("Nao Contem", appSetting)
 	}
-
-	// return strings.Contains(s, appSetting)
 }
 
 func InitReports() {
