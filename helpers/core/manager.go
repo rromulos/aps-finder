@@ -41,10 +41,10 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 				count++
 
 				if verboseMode == "y" {
-					println("Analyzing file " + s)
+					println(ANALYZING_FILE + s)
 				}
 
-				logger.Log(logger.INFO, "Analyzing file "+s, logger.EXECUTION_FILE_NAME)
+				logger.Log(logger.INFO, ANALYZING_FILE+s, logger.EXECUTION_FILE_NAME)
 				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(s)
 				fQtySuccess += qtySuccess
 				fQtyWarning += qtyWarning
@@ -80,20 +80,20 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	if err != nil {
 
 		if verboseMode == "y" {
-			println("Can't open the file " + file)
+			println(CANT_OPEN_FILE + file)
 		}
 
-		logger.Log(logger.ERROR, "Can't open the file "+file, logger.EXECUTION_FILE_NAME)
+		logger.Log(logger.ERROR, CANT_OPEN_FILE+file, logger.EXECUTION_FILE_NAME)
 		qtyError++
 	}
 
 	s := string(b)
 
 	count := strings.Count(s, APP_SETTING_PATTERN)
-	logger.Log(logger.INFO, "Number of occurrences "+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
+	logger.Log(logger.INFO, NUMBER_OF_OCCURRENCES+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
 
 	if verboseMode == "y" {
-		println("Number of occurrences ", count)
+		println(NUMBER_OF_OCCURRENCES, count)
 	}
 
 	for strings.Index(s, APP_SETTING_PATTERN) != -1 {
@@ -103,10 +103,10 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 		if left == -1 {
 
 			if verboseMode == "y" {
-				println("Couldn't get LastIndex, setting 1 ")
+				println(COULD_NOT_GET_LAST_INDEX)
 			}
 
-			logger.Log(logger.WARN, "Couldn't get LastIndex, setting 1 ", logger.EXECUTION_FILE_NAME)
+			logger.Log(logger.WARN, COULD_NOT_GET_LAST_INDEX, logger.EXECUTION_FILE_NAME)
 			left = 1
 			qtyWarning++
 		}
@@ -122,11 +122,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			if len(match) == 0 {
 
 				if verboseMode == "y" {
-					println("Empty value found")
+					println(EMPTY_VALUE)
 				}
 
 				qtyWarning++
-				logger.Log(logger.WARN, "Empty value found", logger.EXECUTION_FILE_NAME)
+				logger.Log(logger.WARN, EMPTY_VALUE, logger.EXECUTION_FILE_NAME)
 				continue
 			}
 
@@ -136,11 +136,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 				if !report.CheckAppSettingAlreadyExists(appSetting) {
 
 					if verboseMode == "y" {
-						println("[" + match + "] contains values ​​in variables that cannot be read")
+						println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
 					}
 
 					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
-					logger.Log(logger.WARN, "["+match+"] contains values ​​in variables that cannot be read", "execution")
+					logger.Log(logger.WARN, "["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
 					qtyWarning++
 				}
 			} else {
