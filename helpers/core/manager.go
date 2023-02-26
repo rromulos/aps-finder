@@ -15,6 +15,9 @@ import (
 const APP_SETTING_PATTERN string = "AppSettingManager::get"
 
 var verboseMode = ""
+var qtyError = 0
+var qtyWarning = 0
+var qtySuccess = 0
 
 func PerformAnalysis(targetFolder, ext string, pVerboseMode string) {
 	verboseMode = pVerboseMode
@@ -26,9 +29,7 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	qtySuccess := 0
 	qtyWarning := 0
 	qtyError := 0
-	fQtySuccess := 0
-	fQtyWarning := 0
-	fQtyError := 0
+
 	var a []string
 	filepath.WalkDir(targetFolder, func(s string, d fs.DirEntry, err error) error {
 
@@ -46,9 +47,6 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 
 				logger.Log(logger.INFO, ANALYZING_FILE+s, logger.EXECUTION_FILE_NAME)
 				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(s)
-				fQtySuccess += qtySuccess
-				fQtyWarning += qtyWarning
-				fQtyError += qtyError
 				a = append(a, s)
 			}
 		}
@@ -56,25 +54,23 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 		return nil
 	})
 
-	if fQtyWarning > 0 || fQtyError > 0 {
+	if qtyWarning > 0 || qtyError > 0 {
 		println("=====================================================================")
 		println("Finished, but needs attention. [", count, "] files were analyzed.")
-		println(strconv.Itoa(fQtyWarning) + " WARNING(s) found during the analysis")
-		println(strconv.Itoa(fQtyError) + " ERROR(s) found during the analysis")
-		println(strconv.Itoa(fQtySuccess) + " App Settings successfully found")
+		println(strconv.Itoa(qtyWarning) + " WARNING(s) found during the analysis")
+		println(strconv.Itoa(qtyError) + " ERROR(s) found during the analysis")
+		println(strconv.Itoa(qtySuccess) + " App Settings successfully found")
 	} else {
 		println("=====================================================================")
 		println("Successfully Finished. [", count, "] files were analyzed.")
-		println("App_settings successfully found = ", fQtySuccess)
+		println("App_settings successfully found = ", qtySuccess)
 	}
 
 	return a
 }
 
 func searchForAppSettingInFile(file string) (int, int, int) {
-	qtyError := 0
-	qtyWarning := 0
-	qtySuccess := 0
+
 	b, err := ioutil.ReadFile(file)
 
 	if err != nil {
@@ -130,26 +126,8 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 				continue
 			}
 
-			checkReturn := checkContentContainsInvalidChars(appSetting)
-
-			if !checkReturn {
-				if !report.CheckAppSettingAlreadyExists(appSetting) {
-
-					if verboseMode == "y" {
-						println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
-					}
-
-					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
-					logger.Log(logger.WARN, "["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
-					qtyWarning++
-				}
-			} else {
-				if !report.CheckAppSettingAlreadyExists(appSetting) {
-					report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
-					qtySuccess++
-				}
-
-			}
+			containsInvalidChars := checkContentContainsInvalidChars(appSetting)
+			addContentToOutputReport(containsInvalidChars, match, appSetting)
 		}
 
 		s = strings.Replace(s, occurrence, "", -1)
@@ -184,4 +162,27 @@ func checkContentContainsInvalidChars(s string) bool {
 	}
 
 	return false
+}
+
+func addContentToOutputReport(containsInvalidChars bool, match string, appSetting string) {
+	if !containsInvalidChars {
+		if !report.CheckAppSettingAlreadyExists(appSetting) {
+
+			if verboseMode == "y" {
+				println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
+			}
+
+			report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
+			logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
+			qtyWarning++
+			println("warning -> ", qtyWarning)
+		}
+	} else {
+		if !report.CheckAppSettingAlreadyExists(appSetting) {
+			report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
+			println("success -> ", qtySuccess)
+			qtySuccess++
+		}
+
+	}
 }
