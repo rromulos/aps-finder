@@ -14,7 +14,10 @@ import (
 
 const APP_SETTING_PATTERN string = "AppSettingManager::get"
 
-func PerformAnalysis(targetFolder, ext string, prefix string) {
+var verboseMode = ""
+
+func PerformAnalysis(targetFolder, ext string, pVerboseMode string) {
+	verboseMode = pVerboseMode
 	findAllFilesByExtension(targetFolder, ext)
 }
 
@@ -36,6 +39,11 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 		if filepath.Ext(d.Name()) == ext {
 			if !strings.Contains(s, "app/protected/vendor/") {
 				count++
+
+				if verboseMode == "y" {
+					println("Analyzing file " + s)
+				}
+
 				logger.Log(logger.INFO, "Analyzing file "+s, logger.EXECUTION_FILE_NAME)
 				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(s)
 				fQtySuccess += qtySuccess
@@ -70,6 +78,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	b, err := ioutil.ReadFile(file)
 
 	if err != nil {
+
+		if verboseMode == "y" {
+			println("Can't open the file " + file)
+		}
+
 		logger.Log(logger.ERROR, "Can't open the file "+file, logger.EXECUTION_FILE_NAME)
 		qtyError++
 	}
@@ -79,11 +92,20 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	count := strings.Count(s, APP_SETTING_PATTERN)
 	logger.Log(logger.INFO, "Number of occurrences "+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
 
+	if verboseMode == "y" {
+		println("Number of occurrences ", count)
+	}
+
 	for strings.Index(s, APP_SETTING_PATTERN) != -1 {
 		idxFind := strings.Index(s, APP_SETTING_PATTERN)
 		left := strings.LastIndex(s[:idxFind], "\n")
 
 		if left == -1 {
+
+			if verboseMode == "y" {
+				println("Couldn't get LastIndex, setting 1 ")
+			}
+
 			logger.Log(logger.WARN, "Couldn't get LastIndex, setting 1 ", logger.EXECUTION_FILE_NAME)
 			left = 1
 			qtyWarning++
@@ -98,6 +120,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			appSetting := removeUnnecessaryChars(match)
 
 			if len(match) == 0 {
+
+				if verboseMode == "y" {
+					println("Empty value found")
+				}
+
 				qtyWarning++
 				logger.Log(logger.WARN, "Empty value found", logger.EXECUTION_FILE_NAME)
 				continue
@@ -106,14 +133,17 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			checkReturn := checkContentContainsInvalidChars(appSetting)
 
 			if !checkReturn {
-				// report.CheckAppSettingAlreadyExists(appSetting)
 				if !report.CheckAppSettingAlreadyExists(appSetting) {
+
+					if verboseMode == "y" {
+						println("[" + match + "] contains values ​​in variables that cannot be read")
+					}
+
 					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
 					logger.Log(logger.WARN, "["+match+"] contains values ​​in variables that cannot be read", "execution")
 					qtyWarning++
 				}
 			} else {
-				// report.CheckAppSettingAlreadyExists(appSetting)
 				if !report.CheckAppSettingAlreadyExists(appSetting) {
 					report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
 					qtySuccess++

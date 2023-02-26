@@ -12,15 +12,17 @@ import (
 func main() {
 	logger.InitLogs()
 	report.InitReports()
-	prefix := ""
+	var verboseMode = ""
+
 	for {
-		prefix = core.EnableDebugMode()
-		if prefix == "y" || prefix == "n" {
+		verboseMode = core.EnableVerboseMode()
+		if verboseMode == "y" || verboseMode == "n" {
 			break
 		}
 	}
+
 	start := time.Now()
-	core.PerformAnalysis("app", ".php", prefix)
+	core.PerformAnalysis("app", ".php", verboseMode)
 	elapsed := time.Since(start)
 	println("=====================================================================")
 	log.Printf("Execution took %s", elapsed)
