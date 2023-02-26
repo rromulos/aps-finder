@@ -3,6 +3,9 @@ package report
 import (
 	"fmt"
 	"os"
+	"strings"
+
+	"github.com/rromulos/aps-finder/helpers/logger"
 )
 
 const OUTPUT_SUCCESS_FILE_NAME string = "output"
@@ -35,10 +38,39 @@ func AddToOutputReportDetailed() {
 }
 
 func destroyReportFiles() {
-	os.Remove("output/execution.log")
-	os.Remove("output/output.log")
+	os.Remove("output/" + OUTPUT_SUCCESS_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+	os.Remove("output/" + OUTPUT_WARNING_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
 }
 
-func InitLogs() {
+func CheckAppSettingAlreadyExists(appSetting string) bool {
+	data, err := os.ReadFile("output/" + OUTPUT_SUCCESS_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+
+	if err != nil {
+		panic(err)
+	}
+
+	s := string(data)
+
+	if strings.Contains(s, appSetting) {
+		// fmt.Println("Contem ", appSetting)
+		return true
+	} else {
+		return false
+		// fmt.Println("Nao Contem", appSetting)
+	}
+
+	// return strings.Contains(s, appSetting)
+}
+
+func InitReports() {
 	destroyReportFiles()
+	_, err := os.Create("output/" + OUTPUT_SUCCESS_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+	if err != nil {
+		logger.Log(logger.ERROR, "Can't create "+OUTPUT_SUCCESS_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
+	}
+	_, err2 := os.Create("output/" + OUTPUT_WARNING_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+	if err2 != nil {
+		logger.Log(logger.ERROR, "Can't create "+OUTPUT_WARNING_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
+	}
+
 }

@@ -11,6 +11,7 @@ const DEBUG string = "DEBUG"
 const WARN string = "WARN"
 const ERROR string = "ERROR"
 const EXECUTION_FILE_NAME = "execution"
+const SYSTEM_FILE_NAME = "sytem"
 
 func destroyLogFiles() {
 	os.Remove("logs/execution.log")

@@ -106,12 +106,19 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			checkReturn := checkContentContainsInvalidChars(appSetting)
 
 			if !checkReturn {
-				report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
-				logger.Log(logger.WARN, "["+match+"] contains values ​​in variables that cannot be read", "execution")
-				qtyWarning++
+				// report.CheckAppSettingAlreadyExists(appSetting)
+				if !report.CheckAppSettingAlreadyExists(appSetting) {
+					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
+					logger.Log(logger.WARN, "["+match+"] contains values ​​in variables that cannot be read", "execution")
+					qtyWarning++
+				}
 			} else {
-				report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
-				qtySuccess++
+				// report.CheckAppSettingAlreadyExists(appSetting)
+				if !report.CheckAppSettingAlreadyExists(appSetting) {
+					report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
+					qtySuccess++
+				}
+
 			}
 		}
 
