@@ -157,8 +157,9 @@ func removeUnnecessaryChars(s string) string {
 	s2 := strings.Replace(s1, ")", "", -1)
 	s3 := strings.Replace(s2, "'", "", -1)
 	s4 := strings.Trim(s3, "\"")
+	s5 := strings.Trim(s4, " ")
 
-	return s4
+	return s5
 }
 
 //Check if the string contains invalid characters
