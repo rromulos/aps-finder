@@ -4,7 +4,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/rromulos/aps-finder/helpers/core"
+	"github.com/rromulos/aps-finder/core"
 	"github.com/rromulos/aps-finder/helpers/logger"
 	"github.com/rromulos/aps-finder/helpers/report"
 )
