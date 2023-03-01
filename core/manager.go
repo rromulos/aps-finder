@@ -174,12 +174,10 @@ func addContentToOutputReport(containsInvalidChars bool, match string, appSettin
 			report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
 			logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
 			qtyWarning++
-			println("warning -> ", qtyWarning)
 		}
 	} else {
 		if !report.CheckAppSettingAlreadyExists(appSetting) {
 			report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
-			println("success -> ", qtySuccess)
 			qtySuccess++
 		}
 
