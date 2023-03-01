@@ -112,11 +112,12 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 		right := strings.Index(s[idxFind:], "\n")
 		occurrence := s[left : idxFind+right]
-		r, _ := regexp.Compile(`\([^()]*\)`)
+		r, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
 		cleanedString := removeFromPattern(APP_SETTING_PATTERN, s[left:idxFind+right])
 
 		for _, match := range r.FindStringSubmatch(cleanedString) {
-			appSetting := removeUnnecessaryChars(match)
+
+			appSetting := getValueBetweenSingleQuotes(match)
 
 			if len(match) == 0 {
 
@@ -148,18 +149,6 @@ func removeFromPattern(p, s string) string {
 	}
 
 	return a
-}
-
-//Removes unnecessary characters
-//Return string
-func removeUnnecessaryChars(s string) string {
-	s1 := strings.Replace(s, "(", "", -1)
-	s2 := strings.Replace(s1, ")", "", -1)
-	s3 := strings.Replace(s2, "'", "", -1)
-	s4 := strings.Trim(s3, "\"")
-	s5 := strings.Trim(s4, " ")
-
-	return s5
 }
 
 //Check if the string contains invalid characters
@@ -195,4 +184,15 @@ func addContentToOutputReport(containsInvalidChars bool, match string, appSettin
 		}
 
 	}
+}
+
+func getValueBetweenSingleQuotes(s string) string {
+	re := regexp.MustCompile(`'([^']*)'`)
+	matches := re.FindAllStringSubmatch(s, -1)
+	if len(matches) > 0 {
+		for _, match := range matches {
+			return match[1]
+		}
+	}
+	return " "
 }
