@@ -33,23 +33,23 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	qtyError := 0
 
 	var a []string
-	filepath.WalkDir(targetFolder, func(s string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(targetFolder, func(content string, d fs.DirEntry, err error) error {
 
 		if err != nil {
 			return err
 		}
 
 		if filepath.Ext(d.Name()) == ext {
-			if !strings.Contains(s, "app/protected/vendor/") {
+			if !strings.Contains(content, "app/protected/vendor/") {
 				count++
 
 				if verboseMode == "y" {
-					println(ANALYZING_FILE + s)
+					println(ANALYZING_FILE + content)
 				}
 
-				logger.Log(logger.INFO, ANALYZING_FILE+s, logger.EXECUTION_FILE_NAME)
-				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(s)
-				a = append(a, s)
+				logger.Log(logger.INFO, ANALYZING_FILE+content, logger.EXECUTION_FILE_NAME)
+				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(content)
+				a = append(a, content)
 			}
 		}
 
@@ -73,8 +73,7 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 
 //Reads the given file looking for AppSettings
 func searchForAppSettingInFile(file string) (int, int, int) {
-
-	b, err := ioutil.ReadFile(file)
+	contentBytes, err := ioutil.ReadFile(file)
 
 	if err != nil {
 
@@ -86,18 +85,17 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 		qtyError++
 	}
 
-	s := string(b)
-
-	count := strings.Count(s, APP_SETTING_PATTERN)
+	content := string(contentBytes)
+	count := strings.Count(content, APP_SETTING_PATTERN)
 	logger.Log(logger.INFO, NUMBER_OF_OCCURRENCES+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
 
 	if verboseMode == "y" {
 		println(NUMBER_OF_OCCURRENCES, count)
 	}
 
-	for strings.Index(s, APP_SETTING_PATTERN) != -1 {
-		idxFind := strings.Index(s, APP_SETTING_PATTERN)
-		left := strings.LastIndex(s[:idxFind], "\n")
+	for strings.Index(content, APP_SETTING_PATTERN) != -1 {
+		idxFind := strings.Index(content, APP_SETTING_PATTERN)
+		left := strings.LastIndex(content[:idxFind], "\n")
 
 		if left == -1 {
 
@@ -110,12 +108,12 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			qtyWarning++
 		}
 
-		right := strings.Index(s[idxFind:], "\n")
-		occurrence := s[left : idxFind+right]
-		r, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
-		cleanedString := removeFromPattern(APP_SETTING_PATTERN, s[left:idxFind+right])
+		right := strings.Index(content[idxFind:], "\n")
+		occurrence := content[left : idxFind+right]
+		result, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
+		cleanedString := removeFromPattern(APP_SETTING_PATTERN, content[left:idxFind+right])
 
-		for _, match := range r.FindStringSubmatch(cleanedString) {
+		for _, match := range result.FindStringSubmatch(cleanedString) {
 
 			appSetting := getValueBetweenSingleQuotes(match)
 
@@ -134,48 +132,45 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			addContentToOutputReport(containsInvalidChars, match, appSetting)
 		}
 
-		s = strings.Replace(s, occurrence, "", -1)
+		content = strings.Replace(content, occurrence, "", -1)
 	}
 	return qtySuccess, qtyWarning, qtyError
 }
 
 //Removes content before the given string
 //Return string
-func removeFromPattern(p, s string) string {
-	_, a, ok := strings.Cut(s, p)
+func removeFromPattern(pattern, appSetting string) string {
+	_, appSettingCleaned, ok := strings.Cut(appSetting, pattern)
 
 	if !ok {
 		return ""
 	}
 
-	return a
+	return appSettingCleaned
 }
 
 //Check if the string contains invalid characters
-func checkContentContainsInvalidChars(s string) bool {
-	r, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
-
-	if r.MatchString(s) {
-		return true
-	}
-
-	return false
+func checkContentContainsInvalidChars(appSetting string) bool {
+	result, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
+	return result.MatchString(appSetting)
 }
 
 //Invokes the report in order to add the outputs
 func addContentToOutputReport(containsInvalidChars bool, match string, appSetting string) {
 	if !containsInvalidChars {
+
 		if !report.CheckAppSettingAlreadyExists(appSetting) {
 
 			if verboseMode == "y" {
 				println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
 			}
 
-			report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, appSetting)
+			report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, match)
 			logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
 			qtyWarning++
 		}
 	} else {
+
 		if !report.CheckAppSettingAlreadyExists(appSetting) {
 			report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
 			qtySuccess++
@@ -184,13 +179,19 @@ func addContentToOutputReport(containsInvalidChars bool, match string, appSettin
 	}
 }
 
-func getValueBetweenSingleQuotes(s string) string {
+func getValueBetweenSingleQuotes(appSetting string) string {
+	//using replace because go has problem with regex that uses backreference
+	appSetting = strings.Replace(appSetting, "\"", "'", -1)
 	re := regexp.MustCompile(`'([^']*)'`)
-	matches := re.FindAllStringSubmatch(s, -1)
+	matches := re.FindAllStringSubmatch(appSetting, -1)
+
 	if len(matches) > 0 {
+
 		for _, match := range matches {
 			return match[1]
 		}
+
 	}
+
 	return " "
 }
