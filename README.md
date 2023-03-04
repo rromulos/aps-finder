@@ -1,4 +1,27 @@
+ 
+# App Setting Finder (diglett)
 
+This application (early development) is intended to inspect all application code in order to map all app_settings.
+The intention is to document all app_settings found and describe the purpose of each one of them.
+
+This application is being developed using the GO Programming language (1.18).
+
+
+## Application folder structure
+
+    .
+    ├── internal               # This package holds the private library code used in your application. Should not be shared with other services.
+    ├── pkg                    # This folder contains code which is OK for other services to consume.
+    │   ├── logger             
+    │   └── report
+    ├── input                  # This folder holds the files containing the app_settings exported from the database    
+    ├── output                 # This folder holds the files containing the execution result
+    ├── logs                   # Logs generated during execution
+    ├── tests                  # Unit tests
+    ├── configs                # This folder holds the config files
+    ├── go.mod                 # The go. mod file defines the module's module path, which is also the import path used for the root directory, and its dependency requirements, which are the other modules needed for a successful build.      
+    ├── main.go
+    └── README.md
 ## Expected features
 
 | Reference | Description               | Status                                                |
@@ -110,4 +133,10 @@ Remembering that we don't want to install any database solution, the ideal would
 
 ---
 
+
+
+
+## Team / Developers
+
+- Rômulo Santos - [[@rromulos](https://github.com/rromulos)]
 
