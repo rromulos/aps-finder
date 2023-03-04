@@ -33,23 +33,32 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	qtyError := 0
 
 	var a []string
-	filepath.WalkDir(targetFolder, func(content string, d fs.DirEntry, err error) error {
+	filepath.WalkDir(targetFolder, func(filePath string, d fs.DirEntry, err error) error {
 
 		if err != nil {
 			return err
 		}
 
 		if filepath.Ext(d.Name()) == ext {
-			if !strings.Contains(content, "app/protected/vendor/") {
-				count++
 
-				if verboseMode == "y" {
-					println(ANALYZING_FILE + content)
+			//excludes the vendor folder
+			if !strings.Contains(filePath, "app/protected/vendor/") {
+
+				fileExtension := filepath.Ext(filePath)
+
+				//ignore all files that do not have a php extension
+				if fileExtension == ".php" {
+					count++
+
+					if verboseMode == "y" {
+						println(ANALYZING_FILE + filePath)
+					}
+
+					logger.Log(logger.INFO, ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
+					qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
+					a = append(a, filePath)
 				}
 
-				logger.Log(logger.INFO, ANALYZING_FILE+content, logger.EXECUTION_FILE_NAME)
-				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(content)
-				a = append(a, content)
 			}
 		}
 
@@ -111,6 +120,7 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 		right := strings.Index(content[idxFind:], "\n")
 		occurrence := content[left : idxFind+right]
+		//considers only the value after the get method inside parentheses and single quotes
 		result, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
 		cleanedString := removeByPattern(APP_SETTING_PATTERN, content[left:idxFind+right])
 
