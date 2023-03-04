@@ -94,6 +94,7 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	}
 
 	for strings.Index(content, APP_SETTING_PATTERN) != -1 {
+
 		idxFind := strings.Index(content, APP_SETTING_PATTERN)
 		left := strings.LastIndex(content[:idxFind], "\n")
 
@@ -171,6 +172,8 @@ func checkContentContainsInvalidChars(appSetting string) bool {
 	return result.MatchString(appSetting)
 }
 
+//Get value between single quotes
+//This method also replaces double quotes with single quotes
 func getValueBetweenSingleQuotes(appSetting string) string {
 	//using replace because go has problem with regex that uses backreference (\1)
 	appSetting = strings.Replace(appSetting, "\"", "'", -1)

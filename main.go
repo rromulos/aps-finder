@@ -23,7 +23,6 @@ func main() {
 
 	start := time.Now()
 	core.PerformAnalysis("app", ".php", verboseMode)
-	elapsed := time.Since(start)
 	println("=====================================================================")
-	log.Printf("Execution took %s", elapsed)
+	log.Printf("Execution took %s", time.Since(start))
 }
