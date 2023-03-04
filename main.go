@@ -4,9 +4,9 @@ import (
 	"log"
 	"time"
 
-	"github.com/rromulos/aps-finder/core"
-	"github.com/rromulos/aps-finder/helpers/logger"
-	"github.com/rromulos/aps-finder/helpers/report"
+	core "github.com/rromulos/aps-finder/internal"
+	"github.com/rromulos/aps-finder/pkg/logger"
+	"github.com/rromulos/aps-finder/pkg/report"
 )
 
 func main() {

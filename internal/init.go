@@ -8,8 +8,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/rromulos/aps-finder/helpers/logger"
-	"github.com/rromulos/aps-finder/helpers/report"
+	"github.com/rromulos/aps-finder/pkg/logger"
+	"github.com/rromulos/aps-finder/pkg/report"
 )
 
 const APP_SETTING_PATTERN string = "AppSettingManager::get"
@@ -111,11 +111,9 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 		right := strings.Index(content[idxFind:], "\n")
 		occurrence := content[left : idxFind+right]
 		result, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
-		cleanedString := removeFromPattern(APP_SETTING_PATTERN, content[left:idxFind+right])
+		cleanedString := removeByPattern(APP_SETTING_PATTERN, content[left:idxFind+right])
 
 		for _, match := range result.FindStringSubmatch(cleanedString) {
-
-			appSetting := getValueBetweenSingleQuotes(match)
 
 			if len(match) == 0 {
 
@@ -128,6 +126,7 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 				continue
 			}
 
+			appSetting := getValueBetweenSingleQuotes(match)
 			containsInvalidChars := checkContentContainsInvalidChars(appSetting)
 			addContentToOutputReport(containsInvalidChars, match, appSetting)
 		}
@@ -139,7 +138,7 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 //Removes content before the given string
 //Return string
-func removeFromPattern(pattern, appSetting string) string {
+func removeByPattern(pattern, appSetting string) string {
 	_, appSettingCleaned, ok := strings.Cut(appSetting, pattern)
 
 	if !ok {
@@ -180,7 +179,7 @@ func addContentToOutputReport(containsInvalidChars bool, match string, appSettin
 }
 
 func getValueBetweenSingleQuotes(appSetting string) string {
-	//using replace because go has problem with regex that uses backreference
+	//using replace because go has problem with regex that uses backreference (\1)
 	appSetting = strings.Replace(appSetting, "\"", "'", -1)
 	re := regexp.MustCompile(`'([^']*)'`)
 	matches := re.FindAllStringSubmatch(appSetting, -1)

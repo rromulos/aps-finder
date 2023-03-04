@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/rromulos/aps-finder/helpers/logger"
+	"github.com/rromulos/aps-finder/pkg/logger"
 )
 
 const OUTPUT_SUCCESS_FILE_NAME string = "output"
@@ -61,12 +61,14 @@ func CheckAppSettingAlreadyExists(appSetting string) bool {
 func InitReports() {
 	destroyReportFiles()
 	_, err := os.Create("output/" + OUTPUT_SUCCESS_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+
 	if err != nil {
 		logger.Log(logger.ERROR, "Can't create "+OUTPUT_SUCCESS_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
 	}
+
 	_, err2 := os.Create("output/" + OUTPUT_WARNING_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
+
 	if err2 != nil {
 		logger.Log(logger.ERROR, "Can't create "+OUTPUT_WARNING_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
 	}
-
 }
