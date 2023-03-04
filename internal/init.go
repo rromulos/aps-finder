@@ -128,7 +128,24 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 			appSetting := getValueBetweenSingleQuotes(match)
 			containsInvalidChars := checkContentContainsInvalidChars(appSetting)
-			addContentToOutputReport(containsInvalidChars, match, appSetting)
+
+			if !report.CheckAppSettingAlreadyExists(appSetting) {
+
+				if !containsInvalidChars {
+
+					if verboseMode == "y" {
+						println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
+					}
+
+					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, match)
+					logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
+					qtyWarning++
+
+				} else {
+					report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
+					qtySuccess++
+				}
+			}
 		}
 
 		content = strings.Replace(content, occurrence, "", -1)
@@ -152,30 +169,6 @@ func removeByPattern(pattern, appSetting string) string {
 func checkContentContainsInvalidChars(appSetting string) bool {
 	result, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
 	return result.MatchString(appSetting)
-}
-
-//Invokes the report in order to add the outputs
-func addContentToOutputReport(containsInvalidChars bool, match string, appSetting string) {
-	if !containsInvalidChars {
-
-		if !report.CheckAppSettingAlreadyExists(appSetting) {
-
-			if verboseMode == "y" {
-				println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
-			}
-
-			report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, match)
-			logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
-			qtyWarning++
-		}
-	} else {
-
-		if !report.CheckAppSettingAlreadyExists(appSetting) {
-			report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
-			qtySuccess++
-		}
-
-	}
 }
 
 func getValueBetweenSingleQuotes(appSetting string) string {
