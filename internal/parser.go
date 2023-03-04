@@ -128,7 +128,7 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			}
 
 			appSetting := getValueBetweenSingleQuotes(match)
-			containsInvalidChars := checkContentContainsInvalidChars(appSetting)
+			containsInvalidChars := checkAppSettingIsValid(appSetting)
 
 			if !report.CheckAppSettingAlreadyExists(appSetting) {
 
@@ -166,9 +166,11 @@ func removeByPattern(pattern, appSetting string) string {
 	return appSettingCleaned
 }
 
-//Check if the string contains invalid characters
-func checkContentContainsInvalidChars(appSetting string) bool {
-	result, _ := regexp.Compile(`^[a-zA-Z0-9_/s/.]+[/s]*$`)
+//Check if the found app_setting is valid
+//accepts all numbers, letters hyphen, underscore and dot
+//but the string can't start with hyphen underscore and dot
+func checkAppSettingIsValid(appSetting string) bool {
+	result, _ := regexp.Compile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
 	return result.MatchString(appSetting)
 }
 
