@@ -44,20 +44,13 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 			//excludes the vendor folder
 			if !strings.Contains(filePath, "app/protected/vendor/") {
 
-				fileExtension := filepath.Ext(filePath)
-
-				//ignore all files that do not have a php extension
-				if fileExtension == ".php" {
-					count++
-
-					if verboseMode == "y" {
-						println(ANALYZING_FILE + filePath)
-					}
-
-					logger.Log(logger.INFO, ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
-					qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
-					a = append(a, filePath)
+				if verboseMode == "y" {
+					println(ANALYZING_FILE + filePath)
 				}
+
+				logger.Log(logger.INFO, ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
+				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
+				a = append(a, filePath)
 
 			}
 		}
