@@ -26,7 +26,7 @@ This application is being developed using the GO Programming language (1.18).
 
 | Reference | Description               | Status                                                |
 | --- | ----------------- | ---------------------------------------------------------------- |
-| REF001 | Create a menu containing the options described in the references *(REF001)*. | Pending |
+| REF001 | Create a menu containing the options described in the references *(REF001)*. | In progress |
 | REF002 | Search for app_settings considering the different ways (AppSettingManager, AppSetting::model()->get ...). |  In progress |
 | REF003 | Generate a file containing the successfully identified app_settings. | Done |
 | REF004 | Generate a file containing the app_settings that needs manual check. | Done |
