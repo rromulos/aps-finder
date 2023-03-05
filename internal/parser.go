@@ -3,10 +3,12 @@ package core
 import (
 	"io/fs"
 	"io/ioutil"
+	"log"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/rromulos/aps-finder/pkg/logger"
 	"github.com/rromulos/aps-finder/pkg/report"
@@ -20,17 +22,22 @@ var qtyWarning = 0
 var qtySuccess = 0
 
 //Method that will start the analysis
-func PerformAnalysis(targetFolder, ext string, pVerboseMode string) {
+func PerformAnalysis(pVerboseMode string) {
 	verboseMode = pVerboseMode
-	findAllFilesByExtension(targetFolder, ext)
+	start := time.Now()
+	findAllFilesByExtension("app", ".php")
+	finished := time.Since(start)
+	println("=====================================================================")
+	log.Printf("Execution took %s", finished)
 }
 
 //Searches for all files with the PHP extension
 func findAllFilesByExtension(targetFolder, ext string) []string {
 	var count = 0
-	qtySuccess := 0
-	qtyWarning := 0
-	qtyError := 0
+
+	qtySuccess = 0
+	qtyWarning = 0
+	qtyError = 0
 
 	var a []string
 	filepath.WalkDir(targetFolder, func(filePath string, d fs.DirEntry, err error) error {
@@ -43,6 +50,7 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 
 			//excludes the vendor folder
 			if !strings.Contains(filePath, "app/protected/vendor/") {
+				count++
 
 				if verboseMode == "y" {
 					println(ANALYZING_FILE + filePath)
