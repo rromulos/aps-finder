@@ -17,7 +17,7 @@ func ShowMainMenu() {
 	fmt.Println("4 - Start Web Service")
 	fmt.Println("5 - Close Application")
 	fmt.Println("----------------------------")
-	fmt.Print("Chose your option :")
+	fmt.Print("Choose your option :")
 
 	input := bufio.NewScanner(os.Stdin)
 	input.Scan()
