@@ -63,12 +63,12 @@ func InitReports() {
 	_, err := os.Create("output/" + OUTPUT_SUCCESS_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
 
 	if err != nil {
-		logger.Log(logger.ERROR, "Can't create "+OUTPUT_SUCCESS_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
+		logger.Log(logger.ERROR, "Can't create "+OUTPUT_SUCCESS_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.APP_FINDER_LOG)
 	}
 
 	_, err2 := os.Create("output/" + OUTPUT_WARNING_FILE_NAME + OUTPUT_FILE_NAME_EXTENSION)
 
 	if err2 != nil {
-		logger.Log(logger.ERROR, "Can't create "+OUTPUT_WARNING_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.SYSTEM_FILE_NAME)
+		logger.Log(logger.ERROR, "Can't create "+OUTPUT_WARNING_FILE_NAME+OUTPUT_FILE_NAME_EXTENSION, logger.APP_FINDER_LOG)
 	}
 }
