@@ -1,4 +1,4 @@
-package core
+package messages
 
 const EMPTY_VALUE string = "Empty value found "
 const ANALYZING_FILE string = "Analyzing file "
