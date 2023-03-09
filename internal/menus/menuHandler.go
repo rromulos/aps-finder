@@ -1,4 +1,4 @@
-package core
+package menus
 
 import (
 	"bufio"
@@ -57,26 +57,12 @@ func redirectToChosenMenu(chosenOption string) {
 
 	switch num {
 	case 1:
-		fmt.Println("One")
+		MenuSetup()
 	case 2:
-		menuSearchForAppSettings()
+		MenuSearchForAppSettings()
 	case 3:
 		fmt.Println("Three")
 	default:
 		ShowMainMenu()
 	}
-}
-
-//Starts the process to search for app settings
-func menuSearchForAppSettings() {
-	for {
-		fmt.Print("Do you want to enable the verbose mode? (y/n) ")
-		input := bufio.NewScanner(os.Stdin)
-		input.Scan()
-		verboseMode = input.Text()
-		if verboseMode == "y" || verboseMode == "n" {
-			break
-		}
-	}
-	PerformAnalysis(verboseMode)
 }
