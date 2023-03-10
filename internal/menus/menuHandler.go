@@ -6,16 +6,28 @@ import (
 	"os"
 	"strconv"
 
+	dotEnvHelper "github.com/rromulos/aps-finder/pkg/dotenvhelper"
 	"github.com/rromulos/aps-finder/pkg/terminal"
 )
 
 //Display the main menu.
 //@TODO the contents of this method needs to be moved to a specific file for the main menu inside the menus folder.
 func ShowMainMenu() {
-	fmt.Println("1 - Setup")
-	fmt.Println("2 - Search for App Settings")
-	fmt.Println("3 - Compare App Settings")
-	fmt.Println("4 - Start Web Service")
+
+	var checkDotEnvFileExists = false
+
+	checkDotEnvFileExists, _ = dotEnvHelper.CheckIfDotEnvFileExists()
+	var checkDotEnvContentIsValid = dotEnvHelper.CheckIfDotEnvContentIsValid()
+
+	if !checkDotEnvFileExists || !checkDotEnvContentIsValid {
+		terminal.CleanTerminal()
+		fmt.Println("1 - Setup")
+	} else {
+		terminal.CleanTerminal()
+		fmt.Println("2 - Search for App Settings")
+		fmt.Println("3 - Compare App Settings")
+		fmt.Println("4 - Start Web Service")
+	}
 	fmt.Println("5 - Close Application")
 	fmt.Println("----------------------------")
 	fmt.Print("Choose your option :")
