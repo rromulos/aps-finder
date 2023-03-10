@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	core "github.com/rromulos/aps-finder/internal"
+	"github.com/rromulos/aps-finder/internal/messages"
 	"github.com/rromulos/aps-finder/pkg/logger"
 )
 
@@ -40,7 +40,7 @@ func SetPath(content string) {
 	file, err := os.OpenFile(".env", os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
 
 	if err != nil {
-		logger.Log(logger.ERROR, core.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
+		logger.Log(logger.ERROR, messages.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
 		panic(err)
 	}
 
@@ -49,7 +49,7 @@ func SetPath(content string) {
 	_, err = file.WriteString(content)
 
 	if err != nil {
-		logger.Log(logger.ERROR, core.CANT_WRITE_IN_DOTENV, logger.APP_FINDER_LOG)
+		logger.Log(logger.ERROR, messages.CANT_WRITE_IN_DOTENV, logger.APP_FINDER_LOG)
 		panic(err)
 	}
 }

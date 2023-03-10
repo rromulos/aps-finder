@@ -6,7 +6,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
-	core "github.com/rromulos/aps-finder/internal"
+	"github.com/rromulos/aps-finder/internal/messages"
 	dotEnvHelper "github.com/rromulos/aps-finder/pkg/dotenvhelper"
 	logger "github.com/rromulos/aps-finder/pkg/logger"
 )
@@ -18,7 +18,7 @@ func MenuSetup() {
 		err := godotenv.Load()
 
 		if err != nil {
-			logger.Log(logger.WARN, core.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
+			logger.Log(logger.WARN, messages.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
 			dotEnvHelper.CreateEnv()
 		}
 
@@ -36,13 +36,13 @@ func MenuSetup() {
 		checkPathExists, err := dotEnvHelper.CheckIfPathExists(input.Text())
 
 		if err != nil {
-			logger.Log(logger.WARN, core.ERROR_DURING_PATH_CHECK, logger.APP_FINDER_LOG)
+			logger.Log(logger.WARN, messages.ERROR_DURING_PATH_CHECK, logger.APP_FINDER_LOG)
 			panic(err)
 		}
 
 		if !checkPathExists {
-			logger.Log(logger.WARN, core.APP_PATH_DOES_NOT_EXISTS, logger.APP_FINDER_LOG)
-			fmt.Println(core.APP_PATH_DOES_NOT_EXISTS)
+			logger.Log(logger.WARN, messages.APP_PATH_DOES_NOT_EXISTS, logger.APP_FINDER_LOG)
+			fmt.Println(messages.APP_PATH_DOES_NOT_EXISTS)
 			continue
 		}
 
