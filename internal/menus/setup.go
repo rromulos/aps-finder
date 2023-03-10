@@ -57,5 +57,9 @@ func checkIfTheSetupMenuCanBeDisplayed() bool {
 
 	dotEnvCheck = dotEnvHelper.CheckIfDotEnvContentIsValid()
 
-	return dotEnvCheck
+	if !dotEnvCheck {
+		return true
+	}
+
+	return false
 }

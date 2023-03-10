@@ -84,7 +84,7 @@ func CheckIfDotEnvContentIsValid() bool {
 
 	appPath := os.Getenv("APP_PATH")
 
-	if appPath != "" {
+	if appPath == "" {
 		return false
 	}
 
