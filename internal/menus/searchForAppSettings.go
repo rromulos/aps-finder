@@ -8,7 +8,7 @@ import (
 	core "github.com/rromulos/aps-finder/internal"
 )
 
-//Starts the process to search for app settings
+//Starts the process to search for app settings.
 func MenuSearchForAppSettings() {
 	var verboseMode string
 

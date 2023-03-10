@@ -10,8 +10,8 @@ import (
 	logger "github.com/rromulos/aps-finder/pkg/logger"
 )
 
-//Show the setup menu
-//@TODO refactoring would be welcome for this function
+//Show the setup menu.
+//@TODO refactoring would be welcome for this function.
 func MenuSetup() {
 	for {
 		displayMenu := checkIfTheSetupMenuCanBeDisplayed()

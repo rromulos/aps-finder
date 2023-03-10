@@ -24,7 +24,8 @@ var qtyError = 0
 var qtyWarning = 0
 var qtySuccess = 0
 
-//Method that will start the analysis
+//Starts parsing for app_settings.
+//pVerboseMode represents whether verbose mode should be considered or not.
 func PerformAnalysis(pVerboseMode string) {
 	godotenv.Load()
 	verboseMode = pVerboseMode
@@ -35,7 +36,7 @@ func PerformAnalysis(pVerboseMode string) {
 	log.Printf("Execution took %s", finished)
 }
 
-//Searches for all files with the PHP extension
+//Searches for all files with the PHP extension.
 func findAllFilesByExtension(targetFolder, ext string) []string {
 	var count = 0
 
@@ -85,7 +86,10 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	return a
 }
 
-//Reads the given file looking for AppSettings
+//Parses the given file looking for AppSettings.
+//file represents the file that needs to be parsed.
+//Returns the amount of app_settings that were successfully read, read with warning, and read with error.
+//@TODO Currently this method does not validate all possible ways to get an app_setting.
 func searchForAppSettingInFile(file string) (int, int, int) {
 	contentBytes, err := ioutil.ReadFile(file)
 
@@ -169,8 +173,8 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	return qtySuccess, qtyWarning, qtyError
 }
 
-//Removes content before the given string
-//Return string
+//Removes content before the given string.
+//Return string.
 func removeByPattern(pattern, appSetting string) string {
 	_, appSettingCleaned, ok := strings.Cut(appSetting, pattern)
 
@@ -181,16 +185,17 @@ func removeByPattern(pattern, appSetting string) string {
 	return appSettingCleaned
 }
 
-//Check if the found app_setting is valid
-//accepts all numbers, letters hyphen, underscore and dot
-//but the string can't start with hyphen underscore and dot
+//Checks if the given app_setting is valid.
+//The regex accepts all numbers, letters hyphen, underscore and dot.
+//But the string can't start with hyphen underscore and dot.
 func checkAppSettingIsValid(appSetting string) bool {
 	result, _ := regexp.Compile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
 	return result.MatchString(appSetting)
 }
 
-//Get value between single quotes
-//This method also replaces double quotes with single quotes
+//Get value between single quotes.
+//This method also replaces double quotes with single quotes (for now its a workaround).
+//Returns a string.
 func getValueBetweenSingleQuotes(appSetting string) string {
 	//using replace because go has problem with regex that uses backreference (\1)
 	appSetting = strings.Replace(appSetting, "\"", "'", -1)
