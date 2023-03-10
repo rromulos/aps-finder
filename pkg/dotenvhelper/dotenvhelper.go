@@ -8,8 +8,10 @@ import (
 	"github.com/rromulos/aps-finder/pkg/logger"
 )
 
-//checks if the informed path exists
-//returns whether the given file or directory exists
+//Checks if the path typed by the user exists.
+//Returns true and nil if the path does exists.
+//Returns false and nil if the path does not exists.
+//Returns false and error if something went wrong when checking the path.
 func CheckIfPathExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 
@@ -24,7 +26,7 @@ func CheckIfPathExists(path string) (bool, error) {
 	return false, err
 }
 
-//creates a .env file
+//Create an empty dotenv file.
 func CreateEnv() {
 	file, err := os.Create(".env")
 
@@ -54,8 +56,37 @@ func SetPath(content string) {
 	}
 }
 
-//Get the APP_PATH in the .env file
-func GetPath() string {
+//Checks if dotenv file exists.
+//Returns false and the error if it does not exist.
+//Returns true and nil if the dotenv does exists.
+func CheckIfDotEnvFileExists() (bool, error) {
+	err := godotenv.Load()
+
+	if err != nil {
+		logger.Log(logger.WARN, messages.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
+		return false, err
+	}
+
+	return true, nil
+}
+
+//Checks if the dotenv file contains all the variables needed to run the application.
+//Returns true if all variables are found.
+//Returns false if some variable is missing.
+func CheckIfDotEnvContentIsValid() bool {
+	dotEnvCheck, _ := CheckIfDotEnvFileExists()
+
+	if !dotEnvCheck {
+		return false
+	}
+
 	godotenv.Load()
-	return os.Getenv("APP_PATH")
+
+	appPath := os.Getenv("APP_PATH")
+
+	if appPath != "" {
+		return false
+	}
+
+	return true
 }
