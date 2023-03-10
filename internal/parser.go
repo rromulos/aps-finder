@@ -4,12 +4,15 @@ import (
 	"io/fs"
 	"io/ioutil"
 	"log"
+	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/joho/godotenv"
+	"github.com/rromulos/aps-finder/internal/messages"
 	"github.com/rromulos/aps-finder/pkg/logger"
 	"github.com/rromulos/aps-finder/pkg/report"
 )
@@ -23,9 +26,10 @@ var qtySuccess = 0
 
 //Method that will start the analysis
 func PerformAnalysis(pVerboseMode string) {
+	godotenv.Load()
 	verboseMode = pVerboseMode
 	start := time.Now()
-	findAllFilesByExtension("app", ".php")
+	findAllFilesByExtension(os.Getenv("APP_PATH"), ".php")
 	finished := time.Since(start)
 	println("=====================================================================")
 	log.Printf("Execution took %s", finished)
@@ -53,10 +57,10 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 				count++
 
 				if verboseMode == "y" {
-					println(ANALYZING_FILE + filePath)
+					println(messages.ANALYZING_FILE + filePath)
 				}
 
-				logger.Log(logger.INFO, ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
+				logger.Log(logger.INFO, messages.ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
 				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
 				a = append(a, filePath)
 
@@ -88,19 +92,19 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 	if err != nil {
 
 		if verboseMode == "y" {
-			println(CANT_OPEN_FILE + file)
+			println(messages.CANT_OPEN_FILE + file)
 		}
 
-		logger.Log(logger.ERROR, CANT_OPEN_FILE+file, logger.EXECUTION_FILE_NAME)
+		logger.Log(logger.ERROR, messages.CANT_OPEN_FILE+file, logger.EXECUTION_FILE_NAME)
 		qtyError++
 	}
 
 	content := string(contentBytes)
 	count := strings.Count(content, APP_SETTING_PATTERN)
-	logger.Log(logger.INFO, NUMBER_OF_OCCURRENCES+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
+	logger.Log(logger.INFO, messages.NUMBER_OF_OCCURRENCES+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
 
 	if verboseMode == "y" {
-		println(NUMBER_OF_OCCURRENCES, count)
+		println(messages.NUMBER_OF_OCCURRENCES, count)
 	}
 
 	for strings.Index(content, APP_SETTING_PATTERN) != -1 {
@@ -111,10 +115,10 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 		if left == -1 {
 
 			if verboseMode == "y" {
-				println(COULD_NOT_GET_LAST_INDEX)
+				println(messages.COULD_NOT_GET_LAST_INDEX)
 			}
 
-			logger.Log(logger.WARN, COULD_NOT_GET_LAST_INDEX, logger.EXECUTION_FILE_NAME)
+			logger.Log(logger.WARN, messages.COULD_NOT_GET_LAST_INDEX, logger.EXECUTION_FILE_NAME)
 			left = 1
 			qtyWarning++
 		}
@@ -130,11 +134,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			if len(match) == 0 {
 
 				if verboseMode == "y" {
-					println(EMPTY_VALUE)
+					println(messages.EMPTY_VALUE)
 				}
 
 				qtyWarning++
-				logger.Log(logger.WARN, EMPTY_VALUE, logger.EXECUTION_FILE_NAME)
+				logger.Log(logger.WARN, messages.EMPTY_VALUE, logger.EXECUTION_FILE_NAME)
 				continue
 			}
 
@@ -146,11 +150,11 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 				if !containsInvalidChars {
 
 					if verboseMode == "y" {
-						println("["+match+"] ", CANT_READ_VALUE_FROM_PHP_VARIABLE)
+						println("["+match+"] ", messages.CANT_READ_VALUE_FROM_PHP_VARIABLE)
 					}
 
 					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, match)
-					logger.Log(logger.WARN, "["+match+"] "+CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
+					logger.Log(logger.WARN, "["+match+"] "+messages.CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
 					qtyWarning++
 
 				} else {
