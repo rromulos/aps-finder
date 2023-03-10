@@ -1,4 +1,4 @@
-package core
+package menus
 
 import (
 	"bufio"
@@ -9,7 +9,8 @@ import (
 	"github.com/rromulos/aps-finder/pkg/terminal"
 )
 
-//shows the main menu
+//Display the main menu.
+//@TODO the contents of this method needs to be moved to a specific file for the main menu inside the menus folder.
 func ShowMainMenu() {
 	fmt.Println("1 - Setup")
 	fmt.Println("2 - Search for App Settings")
@@ -30,12 +31,16 @@ func ShowMainMenu() {
 	redirectToChosenMenu(input.Text())
 }
 
-//checks if the option chosen in the main menu is valid
+//Checks if the option chosen in the main menu is valid.
+//Returns true if so.
+//Returns false if not.
 func validateChosenMenuIsValid(chosenOption string) bool {
 	return contains(chosenOption)
 }
 
-//checks if the chosen options is a valid option
+//Checks if the chosen options is a valid option, considering the array values.
+//Returns true if so.
+//Returns false if not.
 func contains(str string) bool {
 	validMenuOptions := []string{"1", "2", "3", "4", "5"}
 	for _, s := range validMenuOptions {
@@ -46,7 +51,9 @@ func contains(str string) bool {
 	return false
 }
 
-//redirects to the chosen menu
+//Redirects to the menu referring to the option chosen in the main menu.
+//@TODO adds log file to this method (error cases).
+//@TODO method is still incomplete.
 func redirectToChosenMenu(chosenOption string) {
 	num, err := strconv.Atoi(chosenOption)
 
@@ -57,26 +64,12 @@ func redirectToChosenMenu(chosenOption string) {
 
 	switch num {
 	case 1:
-		fmt.Println("One")
+		MenuSetup()
 	case 2:
-		menuSearchForAppSettings()
+		MenuSearchForAppSettings()
 	case 3:
 		fmt.Println("Three")
 	default:
 		ShowMainMenu()
 	}
-}
-
-//Starts the process to search for app settings
-func menuSearchForAppSettings() {
-	for {
-		fmt.Print("Do you want to enable the verbose mode? (y/n) ")
-		input := bufio.NewScanner(os.Stdin)
-		input.Scan()
-		verboseMode = input.Text()
-		if verboseMode == "y" || verboseMode == "n" {
-			break
-		}
-	}
-	PerformAnalysis(verboseMode)
 }

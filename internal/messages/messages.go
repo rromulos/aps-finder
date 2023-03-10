@@ -1,0 +1,16 @@
+package messages
+
+const EMPTY_VALUE string = "Empty value found "
+const ANALYZING_FILE string = "Analyzing file "
+const CANT_OPEN_FILE string = "Can't open the file "
+const NUMBER_OF_OCCURRENCES = "Number of occurrences "
+const COULD_NOT_GET_LAST_INDEX = "Couldn't get LastIndex, setting 1 "
+const CANT_READ_VALUE_FROM_PHP_VARIABLE = "contains values in variables that cannot be read"
+const ERROR_LOADING_DOTENV = "Error loading .env file"
+const APP_PATH_KEY_NOT_FOUND = "App Path Key not found"
+const CANT_WRITE_IN_DOTENV = "Something went wrong to write in the .env file"
+const APP_PATH_DOES_NOT_EXISTS = "Application path does not exist"
+const ERROR_DURING_PATH_CHECK = "Something went wrong when checking whether the app path exists"
+const APP_PATH_IS_EMPTY = "APP Path is empty"
+const SKIPPING_SETUP = "Skipping setup, the variables have already been defined"
+const TYPE_APPLICATION_PATH = "Type the Path of the RepairQ application (app folder): "

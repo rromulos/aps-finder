@@ -11,6 +11,8 @@ This application is being developed using the GO Programming language (1.18).
 
     .
     ├── internal               # This package holds the private library code used in your application. Should not be shared with other services.
+    │   ├── menus              # Folder where all files referring to the application menu will be allocated
+    │   ├── messages           # Folder containing the file with all the messages used in the application  
     ├── pkg                    # This folder contains code which is OK for other services to consume.
     │   ├── logger             
     │   └── report
@@ -132,9 +134,6 @@ Remembering that we don't want to install any database solution, the ideal would
 **REF012** - Builds must provide executables compatible with Linux, Windows and Mac OS.
 
 ---
-
-
-
 
 ## Team / Developers
 
