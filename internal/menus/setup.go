@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/joho/godotenv"
 	"github.com/rromulos/aps-finder/internal/messages"
 	dotEnvHelper "github.com/rromulos/aps-finder/pkg/dotenvhelper"
 	logger "github.com/rromulos/aps-finder/pkg/logger"
@@ -15,41 +14,48 @@ import (
 //@TODO refactoring would be welcome for this function
 func MenuSetup() {
 	for {
-		err := godotenv.Load()
+		displayMenu := checkIfTheSetupMenuCanBeDisplayed()
 
-		if err != nil {
-			logger.Log(logger.WARN, messages.ERROR_LOADING_DOTENV, logger.APP_FINDER_LOG)
-			dotEnvHelper.CreateEnv()
+		if displayMenu {
+			fmt.Print(messages.TYPE_APPLICATION_PATH)
+			input := bufio.NewScanner(os.Stdin)
+			input.Scan()
+
+			checkPathExists, err := dotEnvHelper.CheckIfPathExists(input.Text())
+
+			if err != nil {
+				logger.Log(logger.WARN, messages.ERROR_DURING_PATH_CHECK, logger.APP_FINDER_LOG)
+				panic(err)
+			}
+
+			if !checkPathExists {
+				logger.Log(logger.WARN, messages.APP_PATH_DOES_NOT_EXISTS, logger.APP_FINDER_LOG)
+				fmt.Println(messages.APP_PATH_DOES_NOT_EXISTS)
+				continue
+			}
+
+			if os.Getenv("APP_PATH") == "" {
+				dotEnvHelper.SetPath("APP_PATH=" + input.Text())
+				ShowMainMenu()
+				break
+			}
 		}
-
-		appPath := dotEnvHelper.GetPath()
-
-		if appPath != "" {
-			ShowMainMenu()
-			break
-		}
-
-		fmt.Print("Type the Path of the RepairQ application (app folder): ")
-		input := bufio.NewScanner(os.Stdin)
-		input.Scan()
-
-		checkPathExists, err := dotEnvHelper.CheckIfPathExists(input.Text())
-
-		if err != nil {
-			logger.Log(logger.WARN, messages.ERROR_DURING_PATH_CHECK, logger.APP_FINDER_LOG)
-			panic(err)
-		}
-
-		if !checkPathExists {
-			logger.Log(logger.WARN, messages.APP_PATH_DOES_NOT_EXISTS, logger.APP_FINDER_LOG)
-			fmt.Println(messages.APP_PATH_DOES_NOT_EXISTS)
-			continue
-		}
-
-		if appPath == "" {
-			dotEnvHelper.SetPath("APP_PATH=" + input.Text())
-			ShowMainMenu()
-			break
-		}
+		ShowMainMenu()
+		break
 	}
+}
+
+//Checks if the setup menu can be displayed.
+//Return true if so.
+//Return false if not.
+func checkIfTheSetupMenuCanBeDisplayed() bool {
+	var dotEnvCheck, _ = dotEnvHelper.CheckIfDotEnvFileExists()
+
+	if !dotEnvCheck {
+		dotEnvHelper.CreateEnv()
+	}
+
+	dotEnvCheck = dotEnvHelper.CheckIfDotEnvContentIsValid()
+
+	return dotEnvCheck
 }
