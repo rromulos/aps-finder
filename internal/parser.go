@@ -17,7 +17,7 @@ import (
 	"github.com/rromulos/aps-finder/pkg/report"
 )
 
-const APP_SETTING_PATTERN string = "AppSettingManager::get"
+const appSettingPattern = "AppSettingManager::get"
 
 var (
 	verboseMode string
@@ -26,8 +26,8 @@ var (
 	qtyError    int
 )
 
-//Starts parsing for app_settings.
-//pVerboseMode represents whether verbose mode should be considered or not.
+// PerformAnalysis starts parsing for app_settings.
+// pVerboseMode represents whether verbose mode should be considered or not.
 func PerformAnalysis(pVerboseMode string) {
 	godotenv.Load()
 	verboseMode = pVerboseMode
@@ -38,7 +38,7 @@ func PerformAnalysis(pVerboseMode string) {
 	log.Printf("Execution took %s", finished)
 }
 
-//Searches for all files with the PHP extension.
+// findAllFilesByExtension searches for all files with the PHP extension.
 func findAllFilesByExtension(targetFolder, ext string) []string {
 	var count int
 
@@ -48,26 +48,20 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 
 	var a []string
 	filepath.WalkDir(targetFolder, func(filePath string, d fs.DirEntry, err error) error {
-
 		if err != nil {
 			return err
 		}
 
-		if filepath.Ext(d.Name()) == ext {
+		if filepath.Ext(d.Name()) == ext && !strings.Contains(filePath, "app/protected/vendor/") {
+			count++
 
-			//excludes the vendor folder
-			if !strings.Contains(filePath, "app/protected/vendor/") {
-				count++
-
-				if verboseMode == "y" {
-					println(messages.ANALYZING_FILE + filePath)
-				}
-
-				logger.Log(logger.INFO, messages.ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
-				qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
-				a = append(a, filePath)
-
+			if verboseMode == "y" {
+				println(messages.ANALYZING_FILE + filePath)
 			}
+
+			logger.Log(logger.INFO, messages.ANALYZING_FILE+filePath, logger.EXECUTION_FILE_NAME)
+			qtySuccess, qtyWarning, qtyError = searchForAppSettingInFile(filePath)
+			a = append(a, filePath)
 		}
 
 		return nil
@@ -88,42 +82,33 @@ func findAllFilesByExtension(targetFolder, ext string) []string {
 	return a
 }
 
-//Parses the given file looking for AppSettings.
-//file represents the file that needs to be parsed.
-//Returns the amount of app_settings that were successfully read, read with warning, and read with error.
-//@TODO Currently this method does not validate all possible ways to get an app_setting.
+// searchForAppSettingInFile parses the given file looking for AppSettings.
 func searchForAppSettingInFile(file string) (int, int, int) {
 	contentBytes, err := ioutil.ReadFile(file)
-
 	if err != nil {
-
 		if verboseMode == "y" {
 			println(messages.CANT_OPEN_FILE + file)
 		}
-
 		logger.Log(logger.ERROR, messages.CANT_OPEN_FILE+file, logger.EXECUTION_FILE_NAME)
 		qtyError++
 	}
 
 	content := string(contentBytes)
-	count := strings.Count(content, APP_SETTING_PATTERN)
+	count := strings.Count(content, appSettingPattern)
 	logger.Log(logger.INFO, messages.NUMBER_OF_OCCURRENCES+strconv.Itoa(count), logger.EXECUTION_FILE_NAME)
 
 	if verboseMode == "y" {
 		println(messages.NUMBER_OF_OCCURRENCES, count)
 	}
 
-	for strings.Index(content, APP_SETTING_PATTERN) != -1 {
-
-		idxFind := strings.Index(content, APP_SETTING_PATTERN)
+	for strings.Index(content, appSettingPattern) != -1 {
+		idxFind := strings.Index(content, appSettingPattern)
 		left := strings.LastIndex(content[:idxFind], "\n")
 
 		if left == -1 {
-
 			if verboseMode == "y" {
 				println(messages.COULD_NOT_GET_LAST_INDEX)
 			}
-
 			logger.Log(logger.WARN, messages.COULD_NOT_GET_LAST_INDEX, logger.EXECUTION_FILE_NAME)
 			left = 1
 			qtyWarning++
@@ -131,18 +116,14 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 		right := strings.Index(content[idxFind:], "\n")
 		occurrence := content[left : idxFind+right]
-		//considers only the value after the get method inside parentheses and single quotes
 		result, _ := regexp.Compile(`\([^)]+\)|get\(''\)`)
-		cleanedString := removeByPattern(APP_SETTING_PATTERN, content[left:idxFind+right])
+		cleanedString := removeByPattern(appSettingPattern, content[left:idxFind+right])
 
 		for _, match := range result.FindStringSubmatch(cleanedString) {
-
 			if len(match) == 0 {
-
 				if verboseMode == "y" {
 					println(messages.EMPTY_VALUE)
 				}
-
 				qtyWarning++
 				logger.Log(logger.WARN, messages.EMPTY_VALUE, logger.EXECUTION_FILE_NAME)
 				continue
@@ -152,17 +133,13 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 			containsInvalidChars := checkAppSettingIsValid(appSetting)
 
 			if !report.CheckAppSettingAlreadyExists(appSetting) {
-
 				if !containsInvalidChars {
-
 					if verboseMode == "y" {
 						println("["+match+"] ", messages.CANT_READ_VALUE_FROM_PHP_VARIABLE)
 					}
-
 					report.AddToOutputReport(report.OUTPUT_WARNING_FILE_NAME, match)
 					logger.Log(logger.WARN, "["+match+"] "+messages.CANT_READ_VALUE_FROM_PHP_VARIABLE, logger.EXECUTION_FILE_NAME)
 					qtyWarning++
-
 				} else {
 					report.AddToOutputReport(report.OUTPUT_SUCCESS_FILE_NAME, appSetting)
 					qtySuccess++
@@ -172,44 +149,35 @@ func searchForAppSettingInFile(file string) (int, int, int) {
 
 		content = strings.Replace(content, occurrence, "", -1)
 	}
+
 	return qtySuccess, qtyWarning, qtyError
 }
 
-//Removes content before the given string.
-//Return string.
+// removeByPattern removes content before the given string.
 func removeByPattern(pattern, appSetting string) string {
 	_, appSettingCleaned, ok := strings.Cut(appSetting, pattern)
-
 	if !ok {
 		return ""
 	}
-
 	return appSettingCleaned
 }
 
-//Checks if the given app_setting is valid.
-//The regex accepts all numbers, letters hyphen, underscore and dot.
-//But the string can't start with hyphen underscore and dot.
+// checkAppSettingIsValid checks if the given app_setting is valid.
 func checkAppSettingIsValid(appSetting string) bool {
 	regex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
 	return regex.MatchString(appSetting)
 }
 
-//Get value between single quotes.
-//This method also replaces double quotes with single quotes (for now its a workaround).
-//Returns a string.
+// getValueBetweenSingleQuotes gets value between single quotes.
 func getValueBetweenSingleQuotes(appSetting string) string {
-	//using replace because go has problem with regex that uses backreference (\1)
 	appSetting = strings.Replace(appSetting, "\"", "'", -1)
 	re := regexp.MustCompile(`'([^']*)'`)
 	matches := re.FindAllStringSubmatch(appSetting, -1)
 
 	if len(matches) > 0 {
-
 		for _, match := range matches {
 			return match[1]
 		}
-
 	}
 
 	return " "
