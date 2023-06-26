@@ -170,14 +170,12 @@ func checkAppSettingIsValid(appSetting string) bool {
 
 // getValueBetweenSingleQuotes gets value between single quotes.
 func getValueBetweenSingleQuotes(appSetting string) string {
-	appSetting = strings.Replace(appSetting, "\"", "'", -1)
+	appSetting = strings.ReplaceAll(appSetting, "\"", "'")
 	re := regexp.MustCompile(`'([^']*)'`)
 	matches := re.FindAllStringSubmatch(appSetting, -1)
 
 	if len(matches) > 0 {
-		for _, match := range matches {
-			return match[1]
-		}
+		return matches[0][1]
 	}
 
 	return " "
