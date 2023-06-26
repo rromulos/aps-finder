@@ -19,10 +19,12 @@ import (
 
 const APP_SETTING_PATTERN string = "AppSettingManager::get"
 
-var verboseMode = ""
-var qtyError = 0
-var qtyWarning = 0
-var qtySuccess = 0
+var (
+	verboseMode string
+	qtySuccess  int
+	qtyWarning  int
+	qtyError    int
+)
 
 //Starts parsing for app_settings.
 //pVerboseMode represents whether verbose mode should be considered or not.
@@ -38,7 +40,7 @@ func PerformAnalysis(pVerboseMode string) {
 
 //Searches for all files with the PHP extension.
 func findAllFilesByExtension(targetFolder, ext string) []string {
-	var count = 0
+	var count int
 
 	qtySuccess = 0
 	qtyWarning = 0
@@ -189,8 +191,8 @@ func removeByPattern(pattern, appSetting string) string {
 //The regex accepts all numbers, letters hyphen, underscore and dot.
 //But the string can't start with hyphen underscore and dot.
 func checkAppSettingIsValid(appSetting string) bool {
-	result, _ := regexp.Compile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
-	return result.MatchString(appSetting)
+	regex := regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*$`)
+	return regex.MatchString(appSetting)
 }
 
 //Get value between single quotes.
