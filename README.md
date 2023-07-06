@@ -1,5 +1,5 @@
  
-# App Setting Finder (diglett)
+# App Setting Finder (diglett) - **Abandoned**
 
 This application (early development) is intended to inspect all application code in order to map all app_settings.
 The intention is to document all app_settings found and describe the purpose of each one of them.
